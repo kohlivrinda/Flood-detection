@@ -4,6 +4,7 @@ import tarfile
 import subprocess
 import rasterio
 import cv2
+import warnings
 
 def extract_tar(SOURCE_DIR, SAVE_DIR):
     """function to extract data from a tar.gz file
@@ -27,6 +28,9 @@ def is_empty_img (path):
     Returns:
         bool
     """
+    # with warnings.catch_warnings():
+    #     warnings.filterwarnings("ignore")
+
     img = cv2.imread (path + '/B01.tif', 0)
     return True if (cv2.countNonZero(img) == 0) else False
 
@@ -100,12 +104,35 @@ def get_img_folders(flag:str, root_path):
 
 
 
-def create_image(flist):
+def create_image(flist, bands):
     """function call for deleting empty subfolders, stacking bands and creating new image files for further processing
 
     Args:
         flist (lsit): liat of image subfolders
     """
+
+    # with warnings.catch_warnings():
+    #     warnings.filterwarnings("ignore")
     for fpath in flist:
         empty = is_empty_img(fpath)
-        remove_empty_folders(fpath) if empty else stack_bands(fpath, get_dirname(fpath), bands=band_list)
+        remove_empty_folders(fpath) if empty else stack_bands(fpath, get_dirname(fpath), bands)
+
+
+
+def get_image_labels(dirname, label_dir):
+    """function to get image label for corresponding image dir
+
+    Args:
+        dirname (str): name of image subdirectory
+        label_dir (path.path): path to label directory
+    """
+    pd = dirname.split("_")
+    pd = f"{pd[0]}_{pd[1]}_labels_{pd[3]}_{pd[4]}_{pd[5]}_{pd[6]}"
+
+    json_data = open (f"{label_dir}/{pd}/stac.json", "rb")
+    jdata = json.load(json_data)
+    flood = jdata["properties"]["FLOODING"]
+
+    image_label = 1 if flood else 0
+
+    return image_label
