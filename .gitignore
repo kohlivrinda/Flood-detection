@@ -155,6 +155,10 @@ cython_debug/
 data/
 
 flood-logs/
+tinker-nb/
+
+/flood.ipynb
+/ToDo
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
